@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Bible App v6 (Single File, KJV-ready)</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f6fa; }
+    .tabs { display:flex; gap:10px; padding:10px; background:white; box-shadow:0 2px 4px rgba(0,0,0,0.1); position:sticky; top:0; z-index:5; }
+    .tabs button { padding:10px 20px; border:none; background:#eee; cursor:pointer; border-radius:999px; }
+    .tabs button.active { background:#6d5dfc; color:white; }
+    #content { padding:16px; }
+    .tab-content, .subpage { padding:16px; background:white; border-radius:12px; margin-top:10px; box-shadow:0 4px 10px rgba(0,0,0,0.05); }
+    .card-grid { display:flex; gap:16px; flex-wrap:wrap; }
+    .card { background:white; padding:16px; border-radius:10px; cursor:pointer; box-shadow:0 2px 6px rgba(0,0,0,0.12); flex:1 1 160px; transition:transform .15s, box-shadow .15s; }
+    .card:hover { transform:translateY(-2px); box-shadow:0 6px 14px rgba(0,0,0,0.18); }
+    .back { background:#6d5dfc; color:white; padding:8px 14px; border:none; cursor:pointer; border-radius:999px; margin-bottom:10px; }
+    .subpage { display:none; }
+    h1 { margin-top:0; }
+    /* Bible */
+    .bible-layout { display:flex; gap:16px; flex-wrap:wrap; }
+    .bible-controls { flex:0 0 220px; background:#f8f9ff; padding:12px; border-radius:10px; }
+    .bible-controls label { display:block; font-size:13px; margin-top:6px; }
+    .bible-controls select { width:100%; padding:6px 8px; border-radius:8px; border:1px solid #ccc; margin-top:4px; }
+    .verses-container { flex:1; background:#f8f9ff; padding:12px; border-radius:10px; max-height:400px; overflow:auto; }
+    .verse { margin-bottom:6px; font-size:14px; }
+    /* Children */
+    .children-layout { display:flex; gap:16px; flex-wrap:wrap; }
+    .children-list { flex:0 0 220px; display:flex; flex-direction:column; gap:8px; }
+    .story-btn { padding:8px 10px; border-radius:8px; border:1px solid #ddd; background:#fafafa; cursor:pointer; text-align:left; }
+    .story-btn:hover { background:#f0f0ff; }
+    .children-story { flex:1; background:#f8f9ff; padding:12px; border-radius:10px; }
+    /* AI */
+    .ai-lock-box { background:#f8f0ff; padding:12px; border-radius:10px; margin-bottom:12px; }
+    .primary-btn { padding:8px 14px; border-radius:999px; border:none; cursor:pointer; background:#6d5dfc; color:white; }
+    .chat-window { border-radius:12px; background:#f8f9ff; padding:12px; max-height:260px; overflow-y:auto; margin-bottom:8px; }
+    .chat-messages { display:flex; flex-direction:column; gap:6px; }
+    .message { padding:8px 10px; border-radius:12px; max-width:80%; font-size:14px; }
+    .message.user { align-self:flex-end; background:#6d5dfc; color:white; }
+    .message.bot { align-self:flex-start; background:#e0e4ff; }
+    .chat-input { display:flex; gap:6px; }
+    .chat-input textarea { flex:1; padding:8px; border-radius:10px; border:1px solid #ccc; resize:vertical; }
+    .chat-input button { padding:8px 14px; border-radius:10px; border:none; background:#6d5dfc; color:white; cursor:pointer; }
+    /* AI modal */
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none; align-items:center; justify-content:center; z-index:20; }
+    .modal { background:white; padding:20px; border-radius:14px; width:90%; max-width:360px; box-shadow:0 10px 25px rgba(0,0,0,0.25); }
+    .modal h2 { margin-top:0; }
+    .modal-actions { margin-top:12px; display:flex; justify-content:flex-end; gap:8px; }
+    .secondary-btn { padding:6px 12px; border-radius:999px; border:1px solid #ccc; background:#f7f7f7; cursor:pointer; }
+    /* Responsive */
+    @media (max-width:720px){
+      .bible-layout, .children-layout { flex-direction:column; }
+      .bible-controls, .children-list { flex:1 1 auto; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="tabs">
+  <button data-tab="home" class="active">🏠 Home</button>
+  <button data-tab="bible">📘 Bible</button>
+  <button data-tab="ai">🤖 AI</button>
+  <button data-tab="children">👶 Children</button>
+</div>
+
+<div id="content">
+
+  <!-- HOME -->
+  <div id="home" class="tab-content">
+    <h1>🏠 Home</h1>
+    <p>Choose a section to explore songs, videos and stories.</p>
+    <div class="card-grid">
+      <div class="card" onclick="openPage('songsPage')">
+        <h3>🎵 Songs</h3>
+        <p>Listen to a sample worship song.</p>
+      </div>
+      <div class="card" onclick="openPage('videosPage')">
+        <h3>🎬 Videos</h3>
+        <p>Watch a sample Bible-themed video.</p>
+      </div>
+      <div class="card" onclick="openPage('storiesPage')">
+        <h3>📖 Stories</h3>
+        <p>Read a short inspiring story.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SONGS PAGE -->
+  <div id="songsPage" class="subpage">
+    <button class="back" onclick="goHome()">← Back to Home</button>
+    <h1>🎵 Songs Page</h1>
+    <p>Sample song player (replace this with your own MP3 later).</p>
+    <audio controls style="width:100%;">
+      <source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
+  </div>
+
+  <!-- VIDEOS PAGE -->
+  <div id="videosPage" class="subpage">
+    <button class="back" onclick="goHome()">← Back to Home</button>
+    <h1>🎬 Videos Page</h1>
+    <p>Sample video player (replace with your own MP4 or embed).</p>
+    <video controls width="100%">
+      <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <!-- STORIES PAGE -->
+  <div id="storiesPage" class="subpage">
+    <button class="back" onclick="goHome()">← Back to Home</button>
+    <h1>📖 Stories Page</h1>
+    <p>
+      Sarah felt alone and worried about her future. One night she opened her Bible
+      and read: “Cast all your care upon him; for he careth for you.” She prayed,
+      “Jesus, help me.” From that day, she did not walk alone anymore.
+    </p>
+  </div>
+
+  <!-- BIBLE TAB -->
+  <div id="bible" class="tab-content" style="display:none;">
+    <h1>📘 Bible (KJV Demo, Expandable)</h1>
+    <p>Select a book and chapter to view verses. This demo includes Genesis 1, Psalm 23 and John 3.  
+       You can add the full KJV later by expanding the <code>bibleData</code> object in the script.</p>
+    <div class="bible-layout">
+      <div class="bible-controls">
+        <label for="bookSelect">Book:</label>
+        <select id="bookSelect"></select>
+        <label for="chapterSelect">Chapter:</label>
+        <select id="chapterSelect"></select>
+      </div>
+      <div id="versesContainer" class="verses-container">
+        <!-- Verses render here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- AI TAB -->
+  <div id="ai" class="tab-content" style="display:none;">
+    <h1>🤖 AI Assistant</h1>
+    <p>Unlock the AI assistant with a simple demo subscription (local only, no server).</p>
+
+    <div class="ai-lock-box" id="aiLockBox">
+      <p><strong>AI is locked.</strong> Subscribe to unlock the AI assistant features.</p>
+      <button class="primary-btn" onclick="openSubscriptionModal()">Open Subscription</button>
+    </div>
+
+    <div id="aiPremiumArea" style="display:none;">
+      <h3>AI Chat (Demo)</h3>
+      <div class="chat-window">
+        <div id="chatMessages" class="chat-messages">
+          <div class="message bot">
+            👋 Hi! I am your AI Bible assistant demo. When connected to a real backend, I will answer Bible questions here.
+          </div>
+        </div>
+      </div>
+      <div class="chat-input">
+        <textarea id="chatInput" rows="2" placeholder="Ask something about the Bible, prayer or faith..."></textarea>
+        <button onclick="sendChat()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHILDREN TAB -->
+  <div id="children" class="tab-content" style="display:none;">
+    <h1>👶 Children Stories</h1>
+    <p>Select a story on the left to read it.</p>
+    <div class="children-layout">
+      <div class="children-list">
+        <button class="story-btn" onclick="showChildStory('noah')">🌧️ Noah's Ark</button>
+        <button class="story-btn" onclick="showChildStory('david')">🪨 David & Goliath</button>
+        <button class="story-btn" onclick="showChildStory('daniel')">🦁 Daniel in the Lions' Den</button>
+        <button class="story-btn" onclick="showChildStory('jonah')">🐋 Jonah and the Big Fish</button>
+        <button class="story-btn" onclick="showChildStory('lostSon')">🏠 The Lost Son</button>
+        <button class="story-btn" onclick="showChildStory('babyJesus')">⭐ The Birth of Jesus</button>
+      </div>
+      <div class="children-story" id="childrenStoryContent">
+        <h3>🌧️ Noah's Ark</h3>
+        <p>
+          God told Noah to build a huge boat called an ark. He brought his family and pairs of every animal inside.
+          When the rain flooded the earth, the ark floated safely. After many days, God made the water go away and
+          set a rainbow in the sky as a promise never to flood the whole earth again.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Subscription Modal -->
+<div id="subscriptionOverlay" class="modal-overlay">
+  <div class="modal">
+    <h2>⭐ AI Premium (Demo)</h2>
+    <p>Unlock:</p>
+    <ul>
+      <li>🙏 Prayer and devotion suggestions</li>
+      <li>📖 Bible study Q&A</li>
+      <li>👶 Kids Bible learning questions</li>
+    </ul>
+    <p>This is a demo only. Clicking "Subscribe" will unlock AI on this device using local storage.</p>
+    <div class="modal-actions">
+      <button class="secondary-btn" onclick="closeSubscriptionModal()">Cancel</button>
+      <button class="primary-btn" onclick="subscribePremium()">Subscribe</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// --- KJV DEMO BIBLE DATA ---
+// This is a small sample. To have the FULL KJV, expand this object with
+// all 66 books, each chapter as an array of verse strings.
+const bibleData = {
+  "Genesis": {
+    "1": [
+      "1 In the beginning God created the heaven and the earth.",
+      "2 And the earth was without form, and void; and darkness was upon the face of the deep. And the Spirit of God moved upon the face of the waters.",
+      "3 And God said, Let there be light: and there was light.",
+      "4 And God saw the light, that it was good: and God divided the light from the darkness.",
+      "5 And God called the light Day, and the darkness he called Night. And the evening and the morning were the first day."
+    ]
+  },
+  "Psalms": {
+    "23": [
+      "1 The LORD is my shepherd; I shall not want.",
+      "2 He maketh me to lie down in green pastures: he leadeth me beside the still waters.",
+      "3 He restoreth my soul: he leadeth me in the paths of righteousness for his name's sake.",
+      "4 Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me.",
+      "5 Thou preparest a table before me in the presence of mine enemies: thou anointest my head with oil; my cup runneth over.",
+      "6 Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the LORD for ever."
+    ]
+  },
+  "John": {
+    "3": [
+      "1 There was a man of the Pharisees, named Nicodemus, a ruler of the Jews:",
+      "2 The same came to Jesus by night, and said unto him, Rabbi, we know that thou art a teacher come from God: for no man can do these miracles that thou doest, except God be with him.",
+      "3 Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of God.",
+      "16 For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."
+    ]
+  }
+};
+
+// premium flag local storage key
+const PREMIUM_KEY = "ai_bible_premium";
+
+// --- TAB + SUBPAGE LOGIC ---
+document.addEventListener("DOMContentLoaded", () => {
+  const tabs = document.querySelectorAll(".tabs button");
+  const tabContents = document.querySelectorAll(".tab-content");
+  const subpages = document.querySelectorAll(".subpage");
+
+  tabs.forEach(btn => {
+    btn.addEventListener("click", () => {
+      tabs.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      tabContents.forEach(p => p.style.display = "none");
+      subpages.forEach(s => s.style.display = "none");
+
+      const target = document.getElementById(btn.dataset.tab);
+      if (target) target.style.display = "block";
+    });
+  });
+
+  initBibleNavigation();
+  initPremium();
+});
+
+// open subpage from home
+function openPage(id) {
+  document.querySelectorAll(".tab-content").forEach(p => p.style.display = "none");
+  document.querySelectorAll(".subpage").forEach(s => s.style.display = "none");
+  const pg = document.getElementById(id);
+  if (pg) pg.style.display = "block";
+}
+
+// back to home
+function goHome() {
+  document.querySelectorAll(".subpage").forEach(s => s.style.display = "none");
+  document.getElementById("home").style.display = "block";
+  // set tab visual state
+  const tabs = document.querySelectorAll(".tabs button");
+  tabs.forEach(b => b.classList.remove("active"));
+  const homeBtn = document.querySelector(".tabs button[data-tab='home']");
+  if (homeBtn) homeBtn.classList.add("active");
+}
+
+// --- BIBLE NAVIGATION ---
+function initBibleNavigation() {
+  const bookSelect = document.getElementById("bookSelect");
+  const chapterSelect = document.getElementById("chapterSelect");
+  const versesContainer = document.getElementById("versesContainer");
+  if (!bookSelect || !chapterSelect || !versesContainer) return;
+
+  // populate books
+  Object.keys(bibleData).forEach(book => {
+    const opt = document.createElement("option");
+    opt.value = book;
+    opt.textContent = book;
+    bookSelect.appendChild(opt);
+  });
+
+  bookSelect.addEventListener("change", () => {
+    populateChapters();
+  });
+
+  chapterSelect.addEventListener("change", () => {
+    renderVerses();
+  });
+
+  // initial
+  if (bookSelect.options.length > 0) {
+    bookSelect.selectedIndex = 0;
+    populateChapters();
+  }
+}
+
+function populateChapters() {
+  const bookSelect = document.getElementById("bookSelect");
+  const chapterSelect = document.getElementById("chapterSelect");
+  chapterSelect.innerHTML = "";
+  const book = bookSelect.value;
+  const chapters = Object.keys(bibleData[book] || {});
+  chapters.forEach(ch => {
+    const opt = document.createElement("option");
+    opt.value = ch;
+    opt.textContent = ch;
+    chapterSelect.appendChild(opt);
+  });
+  if (chapters.length > 0) {
+    chapterSelect.value = chapters[0];
+  }
+  renderVerses();
+}
+
+function renderVerses() {
+  const bookSelect = document.getElementById("bookSelect");
+  const chapterSelect = document.getElementById("chapterSelect");
+  const versesContainer = document.getElementById("versesContainer");
+  const book = bookSelect.value;
+  const chapter = chapterSelect.value;
+  versesContainer.innerHTML = "";
+  const verses = (bibleData[book] || {})[chapter] || [];
+  if (!verses.length) {
+    versesContainer.textContent = "No verses available. Extend bibleData for more chapters and books.";
+    return;
+  }
+  verses.forEach(line => {
+    const div = document.createElement("div");
+    div.className = "verse";
+    div.textContent = line;
+    versesContainer.appendChild(div);
+  });
+}
+
+// --- CHILDREN STORIES ---
+function showChildStory(key) {
+  const container = document.getElementById("childrenStoryContent");
+  if (!container) return;
+
+  let title = "";
+  let body = "";
+
+  if (key === "noah") {
+    title = "🌧️ Noah's Ark";
+    body = "God told Noah to build a huge boat called an ark. He brought his family and pairs of every animal inside. " +
+           "When the rain flooded the earth, the ark floated safely. After many days, God made the water go away and " +
+           "set a rainbow in the sky as a promise never to flood the whole earth again.";
+  } else if (key === "david") {
+    title = "🪨 David & Goliath";
+    body = "A giant named Goliath frightened the army of Israel. Everyone was afraid except a young shepherd named David. " +
+           "David trusted God, picked up five smooth stones, and faced the giant with only a sling. One stone flew through " +
+           "the air and knocked Goliath down. God used David's faith, not his strength, to win the battle.";
+  } else if (key === "daniel") {
+    title = "🦁 Daniel in the Lions' Den";
+    body = "Daniel loved God and prayed every day. Some men tricked the king into making a law that no one could pray to God. " +
+           "Daniel kept praying, so they threw him into a den of hungry lions. That night God sent an angel to shut the lions' mouths. " +
+           "In the morning, Daniel was still alive! God had protected him.";
+  } else if (key === "jonah") {
+    title = "🐋 Jonah and the Big Fish";
+    body = "God told Jonah to go to a city called Nineveh and warn the people to stop doing wrong. Jonah ran the other way and sailed on a ship. " +
+           "A big storm came, and Jonah was thrown into the sea, where God sent a great fish to swallow him. After three days, the fish spit Jonah out, " +
+           "and he obeyed God at last.";
+  } else if (key === "lostSon") {
+    title = "🏠 The Lost Son";
+    body = "Jesus told a story about a son who left home and wasted all his money. Hungry and alone, he decided to go back to his father. " +
+           "Instead of being angry, the father ran to hug him and had a big celebration. This shows how God gladly forgives us when we return to Him.";
+  } else if (key === "babyJesus") {
+    title = "⭐ The Birth of Jesus";
+    body = "Mary and Joseph traveled to Bethlehem, but there was no room in the inn. Jesus was born in a stable and laid in a manger. " +
+           "Angels told nearby shepherds the good news: a Savior had been born. They hurried to see baby Jesus and praised God with joy.";
+  }
+
+  container.innerHTML = "";
+  const h = document.createElement("h3");
+  h.textContent = title;
+  const p = document.createElement("p");
+  p.textContent = body;
+  container.appendChild(h);
+  container.appendChild(p);
+}
+
+// --- PREMIUM / SUBSCRIPTION / AI CHAT ---
+function initPremium() {
+  const stored = localStorage.getItem(PREMIUM_KEY);
+  const isPremium = stored === "true";
+  updatePremiumUI(isPremium);
+}
+
+function updatePremiumUI(isPremium) {
+  const lockBox = document.getElementById("aiLockBox");
+  const premiumArea = document.getElementById("aiPremiumArea");
+  if (!lockBox || !premiumArea) return;
+  if (isPremium) {
+    lockBox.style.display = "none";
+    premiumArea.style.display = "block";
+  } else {
+    lockBox.style.display = "block";
+    premiumArea.style.display = "none";
+  }
+}
+
+function openSubscriptionModal() {
+  const overlay = document.getElementById("subscriptionOverlay");
+  if (overlay) overlay.style.display = "flex";
+}
+
+function closeSubscriptionModal() {
+  const overlay = document.getElementById("subscriptionOverlay");
+  if (overlay) overlay.style.display = "none";
+}
+
+function subscribePremium() {
+  localStorage.setItem(PREMIUM_KEY, "true");
+  updatePremiumUI(true);
+  closeSubscriptionModal();
+  alert("Premium activated (demo only). AI assistant unlocked.");
+}
+
+// AI chat demo
+function sendChat() {
+  const input = document.getElementById("chatInput");
+  const container = document.getElementById("chatMessages");
+  if (!input || !container) return;
+  const text = input.value.trim();
+  if (!text) return;
+  appendMessage(container, text, "user");
+  input.value = "";
+  setTimeout(() => {
+    const reply = "This is a demo AI reply. In the real app, this would call your backend or OpenAI API and return a Bible-related answer.";
+    appendMessage(container, reply, "bot");
+    container.scrollTop = container.scrollHeight;
+  }, 400);
+}
+
+function appendMessage(container, text, role) {
+  const div = document.createElement("div");
+  div.className = "message " + role;
+  div.textContent = text;
+  container.appendChild(div);
+}
+</script>
+
+</body>
+</html>
